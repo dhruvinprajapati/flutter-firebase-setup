@@ -1,6 +1,7 @@
 import 'package:firebase_setup/modal/board.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 
 
 
@@ -41,86 +42,112 @@ class _MyHomePageState extends State<MyHomePage> {
     board = Board("", "");
     databaseReference = database.reference().child("Community_board");
     databaseReference.onChildAdded.listen(_onEntryAdded);
-      }
-    
-      // void _incrementCounter() {
-    
-      //   database.reference().child("message").set({
-      //     "firstname":"Dhruvin",
-      //     "lastname" : "prajapati",
-      //     "Age" : 1
-      //   });
-      //   setState(() {
-      //     database.reference().child("message").once().then((DataSnapshot snapshot){
-      //       Map<dynamic , dynamic> list = snapshot.value;
-      //       print("values DB:-${snapshot.key}");
-      //     });
-      //     _counter++;
-      //   });
-      // }
-    
-      @override
-      Widget build(BuildContext context) {
+    databaseReference.onChildChanged.listen(_onEntrychange);
+          }
         
-        return Scaffold(
-          appBar: AppBar(
+          // void _incrementCounter() {
+        
+          //   database.reference().child("message").set({
+          //     "firstname":"Dhruvin",
+          //     "lastname" : "prajapati",
+          //     "Age" : 1
+          //   });
+          //   setState(() {
+          //     database.reference().child("message").once().then((DataSnapshot snapshot){
+          //       Map<dynamic , dynamic> list = snapshot.value;
+          //       print("values DB:-${snapshot.key}");
+          //     });
+          //     _counter++;
+          //   });
+          // }
+        
+          @override
+          Widget build(BuildContext context) {
             
-            title: Text("Board"),
-          ),
-          body: Column(
-            children: <Widget>[
-              Flexible(
-                flex: 0,
-                child: Form(
-                  key: formkey,
-                  child: Flex(
-                    direction: Axis.vertical,
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.subject),
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => board.subject = val,
-                          validator: (val) => val == ""? val : null,
-                        ),
+            return Scaffold(
+              appBar: AppBar(
+                
+                title: Text("Board"),
+              ),
+              body: Column(
+                children: <Widget>[
+                  Flexible(
+                    flex: 0,
+                    child: Form(
+                      key: formkey,
+                      child: Flex(
+                        direction: Axis.vertical,
+                        children: <Widget>[
+                          ListTile(
+                            leading: Icon(Icons.subject),
+                            title: TextFormField(
+                              initialValue: "",
+                              onSaved: (val) => board.subject = val,
+                              validator: (val) => val == ""? val : null,
+                            ),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.message),
+                            title: TextFormField(
+                              initialValue: "",
+                              onSaved: (val) => board.body = val,
+                              validator: (val) => val == ""? val : null,
+                            ),
+                          ),
+                          FlatButton(
+                              child: Text("POST"),
+                              color: Colors.red,
+                              onPressed: () {
+                                heandlesubmit();
+                              },
+                          )
+                        ],
                       ),
-                      ListTile(
-                        leading: Icon(Icons.message),
-                        title: TextFormField(
-                          initialValue: "",
-                          onSaved: (val) => board.body = val,
-                          validator: (val) => val == ""? val : null,
-                        ),
-                      ),
-                      FlatButton(
-                          child: Text("POST"),
-                          color: Colors.red,
-                          onPressed: () {
-                            heandlesubmit();
-                          },
-                      )
-                    ],
+                    ),
                   ),
-                ),
+                  Flexible(
+                    child: FirebaseAnimatedList(
+                      query: databaseReference,
+                      itemBuilder: (_,DataSnapshot snapshot,Animation<double> animation,int index){
+                        return new Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.red,
+                            ),
+                            title: Text(boardMessages[index].subject),
+                            subtitle: Text(boardMessages[index].body),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               )
-            ],
-          )
-           // This trailing comma makes auto-formatting nicer for build methods.
-        );
+               // This trailing comma makes auto-formatting nicer for build methods.
+            );
+          }
+        
+          void _onEntryAdded(Event event) {
+            setState(() {
+             boardMessages.add(Board.fromSnapshot(event.snapshot)); 
+            });
       }
     
-      void _onEntryAdded(Event event) {
-        setState(() {
-         boardMessages.add(Board.fromSnapshot(event.snapshot)); 
+      void heandlesubmit() {
+        final FormState form = formkey.currentState;
+        if (form.validate()){
+          form.save();
+          form.reset();
+          databaseReference.push().set(board.toJson());
+        }
+      }
+    
+      void _onEntrychange(Event event) {
+        var oldentry = boardMessages.singleWhere((entry){
+          return entry.key == event.snapshot.key;
         });
-  }
-
-  void heandlesubmit() {
-    final FormState form = formkey.currentState;
-    if (form.validate()){
-      form.save();
-      form.reset();
-      databaseReference.push().set(board.toJson());
-    }
+        setState(() {
+         boardMessages[boardMessages.indexOf(oldentry)]=Board.fromSnapshot(event.snapshot); 
+        });
   }
 }
