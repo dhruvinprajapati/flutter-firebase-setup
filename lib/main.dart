@@ -2,6 +2,7 @@ import 'package:firebase_setup/modal/board.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 
 
@@ -21,6 +22,54 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyHomePage1 extends StatefulWidget {
+  @override
+  _MyHomePage1State createState() => _MyHomePage1State();
+}
+
+class _MyHomePage1State extends State<MyHomePage1> {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Google Sigin"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FlatButton(
+              child: Text("Google-Signin"),
+              onPressed: () => _googlesignin(),
+              color: Colors.red,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FlatButton(
+              child: Text("With Email"),
+              onPressed: () {},
+              color: Colors.orange,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FlatButton(
+              child: Text("Create Account"),
+              onPressed: () {},
+              color: Colors.blue,
+            ),
+          )
+        ],
+        ),
+      ),
+    );
+  }
+
+  _googlesignin() async {}
+}
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
