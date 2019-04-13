@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final GoogleSignIn _googleSignIn = new GoogleSignIn();
 
 void main() => runApp(MyApp());
 
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage1(),
     );
   }
 }
@@ -68,8 +70,14 @@ class _MyHomePage1State extends State<MyHomePage1> {
     );
   }
 
-  _googlesignin() async {}
+ Future<FirebaseUser> _googlesignin() async {
+   GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+   GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+   FirebaseUser user = await _auth.signInWithGoogle();
+ }
 }
+
+
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
